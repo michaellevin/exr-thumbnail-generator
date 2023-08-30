@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: EXR-Thumbnail-Generator CI
 
 on:
   push:
@@ -29,6 +29,16 @@ jobs:
     - name: Install OpenImageIO (macOS)
       if: matrix.os == 'macOS-latest'
       run: brew install openimageio
+
+    # Windows: setup vcpkg and install OpenImageIO
+    - name: Install vcpkg (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+    - name: Install OpenImageIO via vcpkg (Windows)
+      if: matrix.os == 'windows-latest'
+      run: .\vcpkg\vcpkg install openimageio:x64-windows
 
     # Windows would require setting up OpenImageIO through vcpkg or some other means
     - name: Create Build Environment
