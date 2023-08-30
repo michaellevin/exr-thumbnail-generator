@@ -24,7 +24,9 @@ jobs:
 
     - name: Install OpenImageIO (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install libopenimageio-dev
+      run: |
+        sudo apt-get install -y libopenimageio-dev
+        sudo apt-get install -y openimageio-tools
 
     - name: Install OpenImageIO (macOS)
       if: matrix.os == 'macOS-latest'
@@ -43,8 +45,10 @@ jobs:
 
     - name: Set CMAKE_PREFIX_PATH (Windows)
       if: matrix.os == 'windows-latest'
-      run: echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV
-        
+      run: |
+        echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV
+        set OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio
+            
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
