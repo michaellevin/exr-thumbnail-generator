@@ -1,0 +1,53 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v1.14
+
+    - name: Install OpenImageIO (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install libopenimageio-dev
+
+    - name: Install OpenImageIO (macOS)
+      if: matrix.os == 'macOS-latest'
+      run: brew install openimageio
+
+    # Windows would require setting up OpenImageIO through vcpkg or some other means
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config Release
+
+    - name: List executables (Ubuntu and macOS)
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      run: ls -lh ${{github.workspace}}/build
+      
+    - name: List executables (Windows)
+      if: matrix.os == 'windows-latest'
+      run: dir "${{github.workspace}}\build"
