@@ -38,9 +38,13 @@ jobs:
         .\vcpkg\bootstrap-vcpkg.bat
     - name: Install OpenImageIO via vcpkg (Windows)
       if: matrix.os == 'windows-latest'
-      run: .\vcpkg\vcpkg install openimageio:x64-windows
+      run: |
+        .\vcpkg\vcpkg install openimageio:x64-windows
 
-    # Windows would require setting up OpenImageIO through vcpkg or some other means
+    - name: Set CMAKE_PREFIX_PATH (Windows)
+      if: matrix.os == 'windows-latest'
+      run: echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV
+        
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
