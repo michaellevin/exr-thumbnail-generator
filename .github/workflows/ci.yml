@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest] #, macOS-latest, windows-latest]
       fail-fast: false
 
     steps:
@@ -25,29 +25,30 @@ jobs:
     - name: Install OpenImageIO (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
+        sudo apt-get update
         sudo apt-get install -y libopenimageio-dev
-        sudo apt-get install -y openimageio-tools
+        sudo apt-get install -y openimageio-tools libopenexr-dev libopencolorio-dev libopencv-contrib-dev
+        
+    #- name: Install OpenImageIO (macOS)
+    #  if: matrix.os == 'macOS-latest'
+    #  run: brew install openimageio
 
-    - name: Install OpenImageIO (macOS)
-      if: matrix.os == 'macOS-latest'
-      run: brew install openimageio
+    ## Windows: setup vcpkg and install OpenImageIO
+    #- name: Install vcpkg (Windows)
+    #  if: matrix.os == 'windows-latest'
+    #  run: |
+    #    git clone https://github.com/Microsoft/vcpkg.git
+    #    .\vcpkg\bootstrap-vcpkg.bat
+    #- name: Install OpenImageIO via vcpkg (Windows)
+    #  if: matrix.os == 'windows-latest'
+    #  run: |
+    #    .\vcpkg\vcpkg install openimageio:x64-windows
 
-    # Windows: setup vcpkg and install OpenImageIO
-    - name: Install vcpkg (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        .\vcpkg\bootstrap-vcpkg.bat
-    - name: Install OpenImageIO via vcpkg (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        .\vcpkg\vcpkg install openimageio:x64-windows
-
-    - name: Set CMAKE_PREFIX_PATH (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV
-        set OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio
+    #- name: Set CMAKE_PREFIX_PATH (Windows)
+    #  if: matrix.os == 'windows-latest'
+    #  run: |
+    #    echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV
+    #    set OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio
             
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -66,6 +67,6 @@ jobs:
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       run: ls -lh ${{github.workspace}}/build
       
-    - name: List executables (Windows)
-      if: matrix.os == 'windows-latest'
-      run: dir "${{github.workspace}}\build"
+    #- name: List executables (Windows)
+    #  if: matrix.os == 'windows-latest'
+    #  run: dir "${{github.workspace}}\build"
