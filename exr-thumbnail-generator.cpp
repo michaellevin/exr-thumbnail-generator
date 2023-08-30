@@ -8,7 +8,7 @@ struct ArgumentParser : public argparse::Args
 {
     std::string& src_path = arg("source path");
     std::string& tgt_path = arg("target path");
-    int& lowres_width = kwarg("w,lowres-width", "Lowres width sise").set_default(512);
+    int& lowres_width = kwarg("w,lowres-width", "Lowres width size").set_default(512);
     float& gamma = kwarg("g,gamma", "Gamma correction value").set_default(1.8f);
     bool& verbose = flag("v,verbose", "Verbose mode");
 };
