@@ -49,23 +49,35 @@ jobs:
       run: |
         .\vcpkg\vcpkg install openimageio:x64-windows
 
-    #- name: Set CMAKE_PREFIX_PATH (Windows)
-    #  if: matrix.os == 'windows-latest'
-    #  run: |
-    #    echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows" >> $GITHUB_ENV
+    - name: Set CMAKE_PREFIX_PATH (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows" >> $GITHUB_ENV
     
-    #- name: Set OpenImageIO_DIR for Windows
-    #  if: matrix.os == 'windows-latest'
-    #  run: echo "OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV  
+    - name: Set OpenImageIO_DIR for Windows
+      if: matrix.os == 'windows-latest'
+      run: echo "OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV  
             
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
-    - name: Configure CMake
+    #- name: Configure CMake
+    #  shell: bash
+    #  working-directory: ${{github.workspace}}/build
+    #  run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release # -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
+    
+    - name: Configure CMake on Ubuntu and macOS
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       shell: bash
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release
 
+    - name: Configure CMake on Windows
+      if: runner.os == 'Windows'
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
+    
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
@@ -79,3 +91,9 @@ jobs:
     - name: List executables (Windows)
       if: matrix.os == 'windows-latest'
       run: dir "${{github.workspace}}\build"
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: EXR_thumbnail_generator-${{ runner.os }}
+        path: ${{github.workspace}}/build/Release/EXR_thumbnail_generator*
