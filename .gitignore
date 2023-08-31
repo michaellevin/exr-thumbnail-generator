@@ -1,6 +1,7 @@
 build/
 out/
 .vs/
+_bkp/
 
 # Ignore user-specific settings
 *.suo
@@ -29,3 +30,6 @@ out/
 *.db-wal
 *.idb
 *.pdb
+
+CMakeCache.txt
+help*.txt

@@ -49,14 +49,14 @@ jobs:
       run: |
         .\vcpkg\vcpkg install openimageio:x64-windows
 
-    - name: Set CMAKE_PREFIX_PATH (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows" >> $GITHUB_ENV
+    #- name: Set CMAKE_PREFIX_PATH (Windows)
+    #  if: matrix.os == 'windows-latest'
+    #  run: |
+    #    echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows" >> $GITHUB_ENV
     
-    - name: Set OpenImageIO_DIR for Windows
-      if: matrix.os == 'windows-latest'
-      run: echo "OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV  
+    #- name: Set OpenImageIO_DIR for Windows
+    #  if: matrix.os == 'windows-latest'
+    #  run: echo "OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV  
             
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -86,14 +86,14 @@ jobs:
     # Linux, MacOs
     - name: List executables (Ubuntu and macOS)
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-      run: ls -lh ${{github.workspace}}/build
+      run: ls -lRh ${{github.workspace}}/build
       
     - name: List executables (Windows)
       if: matrix.os == 'windows-latest'
-      run: dir "${{github.workspace}}\build"
+      run: dir "${{github.workspace}}\build" /s
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: EXR_thumbnail_generator-${{ runner.os }}
-        path: ${{github.workspace}}/build/Release/EXR_thumbnail_generator*
+        path: ${{github.workspace}}/build/Release/*
