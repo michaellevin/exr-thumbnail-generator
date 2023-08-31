@@ -90,10 +90,20 @@ jobs:
       
     - name: List executables (Windows)
       if: matrix.os == 'windows-latest'
-      run: dir "${{github.workspace}}\build" /s
+      run: find "${{ github.workspace }}/build" -type f
+      shell: bash
 
-    - name: Upload Artifact
+    # Linux, MacOs
+    - name: Upload Artifact (Ubuntu, MacOs)
       uses: actions/upload-artifact@v3
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      with:
+        name: EXR_thumbnail_generator-${{ runner.os }}
+        path: ${{github.workspace}}/build/
+
+    - name: Upload Artifact (Windows)
+      uses: actions/upload-artifact@v3
+      if: matrix.os == 'windows-latest'
       with:
         name: EXR_thumbnail_generator-${{ runner.os }}
         path: ${{github.workspace}}/build/Release/*
