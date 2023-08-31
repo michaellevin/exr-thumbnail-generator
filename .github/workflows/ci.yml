@@ -21,14 +21,16 @@ jobs:
       
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v1.14
-
+    
+    # Linux
     - name: Install OpenImageIO (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y libopenimageio-dev
         sudo apt-get install -y openimageio-tools libopenexr-dev libopencolorio-dev libopencv-contrib-dev
-        
+    
+    # MacOS
     - name: Install OpenImageIO (macOS)
       if: matrix.os == 'macOS-latest'
       run: brew install openimageio
@@ -39,19 +41,22 @@ jobs:
       run: |
         git clone https://github.com/Microsoft/vcpkg.git
         .\vcpkg\bootstrap-vcpkg.bat
+        .\vcpkg\vcpkg integrate install # it makes the installed libraries available to your build system.
+
+    # Windows: install OpenImageIO
     - name: Install OpenImageIO via vcpkg (Windows)
       if: matrix.os == 'windows-latest'
       run: |
         .\vcpkg\vcpkg install openimageio:x64-windows
 
-    - name: Set CMAKE_PREFIX_PATH (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows" >> $GITHUB_ENV
+    #- name: Set CMAKE_PREFIX_PATH (Windows)
+    #  if: matrix.os == 'windows-latest'
+    #  run: |
+    #    echo "CMAKE_PREFIX_PATH=.\vcpkg\installed\x64-windows" >> $GITHUB_ENV
     
-    - name: Set OpenImageIO_DIR for Windows
-      if: matrix.os == 'windows-latest'
-      run: echo "OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV  
+    #- name: Set OpenImageIO_DIR for Windows
+    #  if: matrix.os == 'windows-latest'
+    #  run: echo "OpenImageIO_DIR=.\vcpkg\installed\x64-windows\share\openimageio" >> $GITHUB_ENV  
             
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -66,6 +71,7 @@ jobs:
       shell: bash
       run: cmake --build . --config Release
 
+    # Linux, MacOs
     - name: List executables (Ubuntu and macOS)
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       run: ls -lh ${{github.workspace}}/build
