@@ -149,13 +149,13 @@ jobs:
         os: ['ubuntu-latest', 'macOS-latest', 'windows-latest']
         include:
           - os: 'ubuntu-latest'
-            asset_name: 'EXR_thumbnail_generator-ubuntu-latest.tar.gz'
+            asset_name: 'EXR_thumbnail_generator-Linux.tar.gz'
             content_type: 'application/gzip'
           - os: 'macOS-latest'
-            asset_name: 'EXR_thumbnail_generator-macOS-latest.tar.gz'
+            asset_name: 'EXR_thumbnail_generator-macOS.tar.gz'
             content_type: 'application/gzip'
           - os: 'windows-latest'
-            asset_name: 'EXR_thumbnail_generator-windows-latest.zip'
+            asset_name: 'EXR_thumbnail_generator-Windows.zip'
             content_type: 'application/zip'
     steps:
     - name: Download Artifacts
