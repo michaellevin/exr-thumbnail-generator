@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-latest, macOS-latest] #, windows-latest]
       fail-fast: false
 
     steps:
@@ -205,15 +205,15 @@ jobs:
         asset_content_type: application/gzip
 
     # Upload the archived outputs to the release for Windows
-    - name: Upload Release Assets for Windows
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: artifacts/EXR_thumbnail_generator-Windows.zip
-        asset_name: EXR_thumbnail_generator-${{ steps.semantic.outputs.new_version }}-Windows.zip
-        asset_content_type: application/zip
+    #- name: Upload Release Assets for Windows
+    #  uses: actions/upload-release-asset@v1
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #  with:
+    #    upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #    asset_path: artifacts/EXR_thumbnail_generator-Windows.zip
+    #    asset_name: EXR_thumbnail_generator-${{ steps.semantic.outputs.new_version }}-Windows.zip
+    #    asset_content_type: application/zip
 
   #release:
   #  needs: build

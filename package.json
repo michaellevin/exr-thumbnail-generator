@@ -1,0 +1,23 @@
+{
+  "name": "exr-thumbnail-generator",
+  "version": "0.2.0",
+  "description": "EXR Thumbnail Generator",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michaellevin/exr-thumbnail-generator.git"
+  },
+  "keywords": [ "exr", "thumbnail", "generator" ],
+  "author": "LZ",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "semantic-release": "latest",
+    "@semantic-release/github": "latest",
+    "@semantic-release/changelog": "latest",
+    "@semantic-release/git": "latest"
+  }
+}
+
