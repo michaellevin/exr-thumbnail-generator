@@ -145,39 +145,113 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    # Create a single release
+    # Setup Node.js environment
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    # Install semantic-release and plugins
+    - name: Install dependencies
+      run: |
+        npm install semantic-release @semantic-release/github @semantic-release/changelog @semantic-release/git
+
+    # Run semantic-release
+    - name: Semantic Release
+      id: semantic
+      run: npx semantic-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Download Artifacts
+    - name: Download Artifacts
+      uses: actions/download-artifact@master
+      with:
+        path: artifacts
+
+    # Create Release using the version from semantic-release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: latest
-        release_name: Latest release
+        tag_name: ${{ steps.semantic.outputs.new_version }}
+        release_name: Release ${{ steps.semantic.outputs.new_version }}
         draft: false
         prerelease: false
 
-    # Download and upload the archived outputs to the release for each OS
-    - name: Handle Assets
-      run: |
-        os_list=('ubuntu-latest' 'macOS-latest' 'windows-latest')
-        asset_names=('EXR_thumbnail_generator-Linux.tar.gz' 'EXR_thumbnail_generator-macOS.tar.gz' 'EXR_thumbnail_generator-Windows.zip')
-        content_types=('application/gzip' 'application/gzip' 'application/zip')
-        
-        for index in "${!os_list[@]}"; do
-          os="${os_list[$index]}"
-          asset_name="${asset_names[$index]}"
-          content_type="${content_types[$index]}"
-          
-          # Download the artifact
-          gh artifact download $asset_name --repo ${{ github.repository }}
-          
-          # Upload the artifact to the release
-          gh release upload latest $asset_name --repo ${{ github.repository }} --content-type $content_type
-        done
+    # Upload the archived outputs to the release for Linux
+    - name: Upload Release Assets for Linux
+      uses: actions/upload-release-asset@v1
       env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_REPO: ${{ github.repository }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/EXR_thumbnail_generator-Linux.tar.gz
+        asset_name: EXR_thumbnail_generator-${{ steps.semantic.outputs.new_version }}-Linux.tar.gz
+        asset_content_type: application/gzip
+
+    # Upload the archived outputs to the release for macOS
+    - name: Upload Release Assets for macOS
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/EXR_thumbnail_generator-macOS.tar.gz
+        asset_name: EXR_thumbnail_generator-${{ steps.semantic.outputs.new_version }}-macOS.tar.gz
+        asset_content_type: application/gzip
+
+    # Upload the archived outputs to the release for Windows
+    - name: Upload Release Assets for Windows
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/EXR_thumbnail_generator-Windows.zip
+        asset_name: EXR_thumbnail_generator-${{ steps.semantic.outputs.new_version }}-Windows.zip
+        asset_content_type: application/zip
+
+  #release:
+  #  needs: build
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #  # Create a single release
+  #  - name: Create Release
+  #    id: create_release
+  #    uses: actions/create-release@v1
+  #    env:
+  #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #    with:
+  #      tag_name: latest
+  #      release_name: Latest release
+  #      draft: false
+  #      prerelease: false
+
+  #  # Download and upload the archived outputs to the release for each OS
+  #  - name: Handle Assets
+  #    run: |
+  #      os_list=('ubuntu-latest' 'macOS-latest' 'windows-latest')
+  #      asset_names=('EXR_thumbnail_generator-Linux.tar.gz' 'EXR_thumbnail_generator-macOS.tar.gz' 'EXR_thumbnail_generator-Windows.zip')
+  #      content_types=('application/gzip' 'application/gzip' 'application/zip')
+        
+  #      for index in "${!os_list[@]}"; do
+  #        os="${os_list[$index]}"
+  #        asset_name="${asset_names[$index]}"
+  #        content_type="${content_types[$index]}"
+          
+  #        # Download the artifact
+  #        gh artifact download $asset_name --repo ${{ github.repository }}
+          
+  #        # Upload the artifact to the release
+  #        gh release upload latest $asset_name --repo ${{ github.repository }} --content-type $content_type
+  #      done
+  #    env:
+  #      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #      GH_REPO: ${{ github.repository }}
 
   #release:
   #  needs: build
