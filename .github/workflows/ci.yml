@@ -173,6 +173,14 @@ jobs:
       with:
         path: artifacts
 
+    - name: Check if new version is determined
+      id: check_version
+      run: |
+        if [[ -z "${{ steps.semantic.outputs.new_version }}" ]]; then
+          echo "No new version determined. Skipping release."
+          echo "skip_release=true" >> $GITHUB_ENV
+        fi
+
     # Create Release using the version from semantic-release
     - name: Create Release
       id: create_release
