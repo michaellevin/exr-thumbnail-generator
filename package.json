@@ -9,6 +9,9 @@
     "type": "git",
     "url": "https://github.com/michaellevin/exr-thumbnail-generator.git"
   },
+  "release": {
+    "branches": [ "main" ]
+  },
   "keywords": [ "exr", "thumbnail", "generator" ],
   "author": "LZ",
   "license": "ISC",
