@@ -16,12 +16,14 @@ jobs:
       fail-fast: false
 
     steps:
+    # [CHECKOUT LATEST]
     - name: Checkout code
       uses: actions/checkout@v3
       
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v1.14
     
+    # [INSTALL OPENIMAGEIO]
     # Linux
     - name: Install OpenImageIO (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
@@ -66,6 +68,7 @@ jobs:
     #  working-directory: ${{github.workspace}}/build
     #  run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release # -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
     
+    # [CONFIGURE CMAKE]
     - name: Configure CMake on Ubuntu and macOS
       if: runner.os == 'Linux' || runner.os == 'macOS'
       shell: bash
@@ -78,12 +81,32 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
     
+    # [BUILD]
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: cmake --build . --config Release
 
-    # Linux, MacOs
+    # [ARCHIVE] 
+    - name: Archive and Upload Outputs (Ubuntu, MacOs)
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      run: |
+        tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build .
+      uses: actions/upload-artifact@v3
+      with:
+        name: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+        path: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+
+    - name: Archive and Upload Outputs (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        7z a EXR_thumbnail_generator-${{ runner.os }}.zip ${{github.workspace}}/build/Release/*
+      uses: actions/upload-artifact@v3
+      with:
+        name: EXR_thumbnail_generator-${{ runner.os }}.zip
+        path: EXR_thumbnail_generator-${{ runner.os }}.zip
+
+    # [LIST WHAT HAVE BEEN COMPILED]
     - name: List executables (Ubuntu and macOS)
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       run: ls -lRh ${{github.workspace}}/build
@@ -93,17 +116,66 @@ jobs:
       run: find "${{ github.workspace }}/build" -type f
       shell: bash
 
-    # Linux, MacOs
-    - name: Upload Artifact (Ubuntu, MacOs)
-      uses: actions/upload-artifact@v3
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-      with:
-        name: EXR_thumbnail_generator-${{ runner.os }}
-        path: ${{github.workspace}}/build/
+    # [UPLOAD ARTIFACTS]
+    #- name: Upload Artifact (Ubuntu, MacOs)
+    #  uses: actions/upload-artifact@v3
+    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+    #  with:
+    #    name: EXR_thumbnail_generator-${{ runner.os }}
+    #    path: ${{github.workspace}}/build/
 
-    - name: Upload Artifact (Windows)
-      uses: actions/upload-artifact@v3
-      if: matrix.os == 'windows-latest'
+    #- name: Upload Artifact (Windows)
+    #  uses: actions/upload-artifact@v3
+    #  if: matrix.os == 'windows-latest'
+    #  with:
+    #    name: EXR_thumbnail_generator-${{ runner.os }}
+    #    path: ${{github.workspace}}/build/Release/* 
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'macOS-latest', 'windows-latest']
+        include:
+          - os: 'ubuntu-latest'
+            asset_name: 'EXR_thumbnail_generator-ubuntu-latest.tar.gz'
+            content_type: 'application/gzip'
+          - os: 'macOS-latest'
+            asset_name: 'EXR_thumbnail_generator-macOS-latest.tar.gz'
+            content_type: 'application/gzip'
+          - os: 'windows-latest'
+            asset_name: 'EXR_thumbnail_generator-windows-latest.zip'
+            content_type: 'application/zip'
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@master
       with:
-        name: EXR_thumbnail_generator-${{ runner.os }}
-        path: ${{github.workspace}}/build/Release/*
+        name: ${{ matrix.asset_name }}
+        path: artifacts
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    # Upload the archived outputs to the release using matrix values
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: artifacts/${{ matrix.asset_name }}
+        asset_name: ${{ matrix.asset_name }}
+        asset_content_type: ${{ matrix.content_type }}
+
+
+
+
