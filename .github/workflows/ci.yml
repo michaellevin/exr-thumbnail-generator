@@ -173,6 +173,36 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+    - name: Get latest release
+      id: latest_release
+      run: |
+        LATEST_RELEASE_URL=$(curl --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+            --url 'https://api.github.com/repos/${{ github.repository }}/releases/latest' \
+            --silent \
+            --location \
+            | jq -r '.upload_url')
+        echo "Latest release URL is $LATEST_RELEASE_URL"
+        echo "upload_url=$LATEST_RELEASE_URL" >> $GITHUB_ENV
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Assets
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        for asset in artifacts/*; do
+          if [[ -f "$asset" ]]; then
+            echo "Uploading asset $asset"
+            asset_name=$(basename $asset)
+            content_type=$(file --mime-type -b $asset)
+        
+            curl \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Content-Type: $content_type" \
+              --data-binary "@$asset" \
+              "${{ env.upload_url }}?name=$asset_name"
+          fi
+        done
     
 
     #- name: Check if new version is determined
