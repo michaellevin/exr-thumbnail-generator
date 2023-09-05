@@ -140,33 +140,15 @@ jobs:
     #  with:
     #    name: EXR_thumbnail_generator-${{ runner.os }}
     #    path: ${{github.workspace}}/build/Release/* 
-
+  
   release:
     needs: build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: ['ubuntu-latest', 'macOS-latest', 'windows-latest']
-        include:
-          - os: 'ubuntu-latest'
-            asset_name: 'EXR_thumbnail_generator-Linux.tar.gz'
-            content_type: 'application/gzip'
-          - os: 'macOS-latest'
-            asset_name: 'EXR_thumbnail_generator-macOS.tar.gz'
-            content_type: 'application/gzip'
-          - os: 'windows-latest'
-            asset_name: 'EXR_thumbnail_generator-Windows.zip'
-            content_type: 'application/zip'
     steps:
-    - name: Download Artifacts
-      uses: actions/download-artifact@master
-      with:
-        name: ${{ matrix.asset_name }}
-        path: artifacts
-
+    # Create a single release
     - name: Create Release
       id: create_release
-      uses: actions/create-release@master
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -175,16 +157,72 @@ jobs:
         draft: false
         prerelease: false
 
-    # Upload the archived outputs to the release using matrix values
-    - name: Upload Release Assets
-      uses: actions/upload-release-asset@master
+    # Download and upload the archived outputs to the release for each OS
+    - name: Handle Assets
+      run: |
+        os_list=('ubuntu-latest' 'macOS-latest' 'windows-latest')
+        asset_names=('EXR_thumbnail_generator-Linux.tar.gz' 'EXR_thumbnail_generator-macOS.tar.gz' 'EXR_thumbnail_generator-Windows.zip')
+        content_types=('application/gzip' 'application/gzip' 'application/zip')
+        
+        for index in "${!os_list[@]}"; do
+          os="${os_list[$index]}"
+          asset_name="${asset_names[$index]}"
+          content_type="${content_types[$index]}"
+          
+          # Download the artifact
+          gh artifact download $asset_name --repo ${{ github.repository }}
+          
+          # Upload the artifact to the release
+          gh release upload latest $asset_name --repo ${{ github.repository }} --content-type $content_type
+        done
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: artifacts/${{ matrix.asset_name }}
-        asset_name: ${{ matrix.asset_name }}
-        asset_content_type: ${{ matrix.content_type }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_REPO: ${{ github.repository }}
+
+  #release:
+  #  needs: build
+  #  runs-on: ubuntu-latest
+  #  strategy:
+  #    matrix:
+  #      os: ['ubuntu-latest', 'macOS-latest', 'windows-latest']
+  #      include:
+  #        - os: 'ubuntu-latest'
+  #          asset_name: 'EXR_thumbnail_generator-Linux.tar.gz'
+  #          content_type: 'application/gzip'
+  #        - os: 'macOS-latest'
+  #          asset_name: 'EXR_thumbnail_generator-macOS.tar.gz'
+  #          content_type: 'application/gzip'
+  #        - os: 'windows-latest'
+  #          asset_name: 'EXR_thumbnail_generator-Windows.zip'
+  #          content_type: 'application/zip'
+  #  steps:
+  #  - name: Download Artifacts
+  #    uses: actions/download-artifact@master
+  #    with:
+  #      name: ${{ matrix.asset_name }}
+  #      path: artifacts
+
+  #  - name: Create Release
+  #    id: create_release
+  #    uses: actions/create-release@master
+  #    env:
+  #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #    with:
+  #      tag_name: latest
+  #      release_name: Latest release
+  #      draft: false
+  #      prerelease: false
+
+  #  # Upload the archived outputs to the release using matrix values
+  #  - name: Upload Release Assets
+  #    uses: actions/upload-release-asset@master
+  #    env:
+  #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #    with:
+  #      upload_url: ${{ steps.create_release.outputs.upload_url }}
+  #      asset_path: artifacts/${{ matrix.asset_name }}
+  #      asset_name: ${{ matrix.asset_name }}
+  #      asset_content_type: ${{ matrix.content_type }}
 
 
 
