@@ -173,25 +173,25 @@ jobs:
       with:
         path: artifacts
 
-    - name: Check if new version is determined
-      id: check_version
-      run: |
-        if [[ -z "${{ steps.semantic.outputs.new_version }}" ]]; then
-          echo "No new version determined. Skipping release."
-          echo "skip_release=true" >> $GITHUB_ENV
-        fi
+    #- name: Check if new version is determined
+    #  id: check_version
+    #  run: |
+    #    if [[ -z "${{ steps.semantic.outputs.new_version }}" ]]; then
+    #      echo "No new version determined. Skipping release."
+    #      echo "skip_release=true" >> $GITHUB_ENV
+    #    fi
 
-    # Create Release using the version from semantic-release
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.semantic.outputs.new_version }}
-        release_name: Release ${{ steps.semantic.outputs.new_version }}
-        draft: false
-        prerelease: false
+    ## Create Release using the version from semantic-release
+    #- name: Create Release
+    #  id: create_release
+    #  uses: actions/create-release@v1
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #  with:
+    #    tag_name: ${{ steps.semantic.outputs.new_version }}
+    #    release_name: Release ${{ steps.semantic.outputs.new_version }}
+    #    draft: false
+    #    prerelease: false
 
     # Upload the archived outputs to the release for Linux
     - name: Upload Release Assets for Linux
