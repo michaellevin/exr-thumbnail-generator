@@ -195,8 +195,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         ls -la artifacts/
-        for asset in artifacts/*; do
-          echo "asset >>> $asset"
+        echo "Current working directory > $(pwd)"
+        for asset in $(pwd)/artifacts/*; do
+          echo "asset > $asset"
           if [[ -f "$asset" ]]; then
             echo "Uploading asset $asset"
             asset_name=$(basename $asset)
