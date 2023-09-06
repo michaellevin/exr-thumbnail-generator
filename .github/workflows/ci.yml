@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest] #, windows-latest]
+        os: [ubuntu-latest, ] #macOS-latest] #, windows-latest]
       fail-fast: false
 
     steps:
@@ -185,12 +185,18 @@ jobs:
         echo "upload_url=$LATEST_RELEASE_URL" >> $GITHUB_ENV
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: List Artifacts
+      run: |
+        ls -la artifacts/
 
     - name: Upload Assets
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        ls -la artifacts/
         for asset in artifacts/*; do
+          echo "asset >>> $asset"
           if [[ -f "$asset" ]]; then
             echo "Uploading asset $asset"
             asset_name=$(basename $asset)
