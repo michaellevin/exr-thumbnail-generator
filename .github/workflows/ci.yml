@@ -99,26 +99,18 @@ jobs:
     
     # [ARCHIVE & UPLOAD] 
     # Archive the build outputs for Ubuntu and macOS
-    #- name: Archive Outputs (Ubuntu, MacOs)
-    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-    #  run: |
-    #    # tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build exr-thumbnail-generator
-    #    if [[ -f "${{github.workspace}}/build/exr-thumbnail-generator" ]]; then
-    #        tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build exr-thumbnail-generator
-    #        echo "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
-    #        tar tvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz
-    #    else
-    #        echo "Executable not found or is not a file!"
-    #        exit 1
-    #    fi
-
+    - name: Archive Outputs (Ubuntu, MacOs)
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      run: |
+        tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build exr-thumbnail-generator
+        
     # Upload the archived outputs for Ubuntu and macOS
-    #- name: Upload Outputs (Ubuntu, MacOs)
-    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
-    #    path: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+    - name: Upload Outputs (Ubuntu, MacOs)
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+        path: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
     
     #- name: Archive Outputs (Ubuntu, MacOs)
     #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
@@ -132,12 +124,13 @@ jobs:
     #    name: EXR_thumbnail_generator-${{ runner.os }}.zip
     #    path: EXR_thumbnail_generator-${{ runner.os }}.zip
 
-    - name: Upload Outputs (Ubuntu, MacOs)
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-      uses: actions/upload-artifact@v3
-      with:
-        name: EXR_thumbnail_generator-${{ runner.os }}
-        path: ${{github.workspace}}/build/exr-thumbnail-generator
+    # WORKING
+    #- name: Upload Outputs (Ubuntu, MacOs)
+    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: EXR_thumbnail_generator-${{ runner.os }}
+    #    path: ${{github.workspace}}/build/exr-thumbnail-generator
 
     # Archive the build outputs for Windows
     - name: Archive Outputs (Windows)
@@ -180,6 +173,15 @@ jobs:
       uses: actions/download-artifact@master
       with:
         path: artifacts
+    
+    - name: Flatten directories structure after download
+      run: |
+        for dir in $(pwd)/artifacts/*; do
+            if [[ -d "$dir" ]]; then
+                mv "$dir"/* $(pwd)/artifacts/
+                rmdir "$dir"
+            fi
+        done
 
     # Setup Node.js environment
     - name: Setup Node.js
@@ -224,7 +226,7 @@ jobs:
         ls -lRh artifacts/
         BASE_UPLOAD_URL="${{ env.upload_url }}"
         BASE_UPLOAD_URL="${BASE_UPLOAD_URL/\{\?name,label\}/}" # Remove {?name,label} from the URL
-        for asset in $(pwd)/artifacts/EXR_thumbnail_generator-${{ runner.os }}/*; do
+        for asset in $(pwd)/artifacts/*; do
           echo "asset > $asset"
           asset_name=$(basename $asset)
           content_type=$(file --mime-type -b $asset)        
