@@ -99,18 +99,38 @@ jobs:
     
     # [ARCHIVE & UPLOAD] 
     # Archive the build outputs for Ubuntu and macOS
+    #- name: Archive Outputs (Ubuntu, MacOs)
+    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+    #  run: |
+    #    # tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build exr-thumbnail-generator
+    #    if [[ -f "${{github.workspace}}/build/exr-thumbnail-generator" ]]; then
+    #        tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build exr-thumbnail-generator
+    #        echo "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+    #        tar tvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+    #    else
+    #        echo "Executable not found or is not a file!"
+    #        exit 1
+    #    fi
+
+    # Upload the archived outputs for Ubuntu and macOS
+    #- name: Upload Outputs (Ubuntu, MacOs)
+    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+    #    path: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+    
     - name: Archive Outputs (Ubuntu, MacOs)
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       run: |
-        tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build exr-thumbnail-generator
+        zip -r EXR_thumbnail_generator-${{ runner.os }}.zip ${{github.workspace}}/build/exr-thumbnail-generator
 
-    # Upload the archived outputs for Ubuntu and macOS
     - name: Upload Outputs (Ubuntu, MacOs)
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       uses: actions/upload-artifact@v3
       with:
-        name: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
-        path: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
+        name: EXR_thumbnail_generator-${{ runner.os }}.zip
+        path: EXR_thumbnail_generator-${{ runner.os }}.zip
 
     # Archive the build outputs for Windows
     - name: Archive Outputs (Windows)
