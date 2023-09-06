@@ -188,13 +188,13 @@ jobs:
     
     - name: List Artifacts
       run: |
-        ls -la artifacts/
+        ls -l artifacts/
 
     - name: Upload Assets
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        ls -la artifacts/
+        ls -lh artifacts/
         BASE_UPLOAD_URL="${{ env.upload_url }}"
         BASE_UPLOAD_URL="${BASE_UPLOAD_URL/\{\?name,label\}/}" # Remove {?name,label} from the URL
         for asset in $(pwd)/artifacts/*; do
