@@ -195,7 +195,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         ls -la artifacts/
-        echo "Current working directory > $(pwd)"
+        BASE_UPLOAD_URL="${{ env.upload_url }}"
+        BASE_UPLOAD_URL="${BASE_UPLOAD_URL/\{\?name,label\}/}" # Remove {?name,label} from the URL
         for asset in $(pwd)/artifacts/*; do
           echo "asset > $asset"
           asset_name=$(basename $asset)
@@ -204,7 +205,7 @@ jobs:
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: $content_type" \
             --data-binary "@$asset" \
-            "${{ env.upload_url }}?name=$asset_name&label=$asset_name"
+            "${BASE_UPLOAD_URL}?name=$asset_name&label=$asset_name"
         done
     
 
