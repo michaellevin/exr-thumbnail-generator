@@ -201,10 +201,10 @@ jobs:
           asset_name=$(basename $asset)
           content_type=$(file --mime-type -b $asset)        
           curl \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: $content_type" \
-              --data-binary "@$asset" \
-              "https://uploads.github.com/repos/michaellevin/exr-thumbnail-generator/releases/120170941/assets{?name,label}?name=$asset_name"
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: $content_type" \
+            --data-binary "@$asset" \
+            "${{ env.upload_url }}?name=$asset_name&label=$asset_name"
         done
     
 
