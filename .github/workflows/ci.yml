@@ -176,12 +176,16 @@ jobs:
     
     - name: Flatten directories structure after download
       run: |
+        temp_dir=$(pwd)/artifacts_temp
+        mkdir -p "$temp_dir"
         for dir in $(pwd)/artifacts/*; do
             if [[ -d "$dir" ]]; then
-                mv "$dir"/* $(pwd)/artifacts/
+                mv "$dir"/* "$temp_dir/"
                 rmdir "$dir"
             fi
         done
+        mv "$temp_dir"/* $(pwd)/artifacts/
+        rmdir "$temp_dir"
 
     # Setup Node.js environment
     - name: Setup Node.js
