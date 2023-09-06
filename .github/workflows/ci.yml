@@ -102,7 +102,7 @@ jobs:
     - name: Archive Outputs (Ubuntu, MacOs)
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       run: |
-        tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build .
+        tar czvf EXR_thumbnail_generator-${{ runner.os }}.tar.gz -C ${{github.workspace}}/build exr-thumbnail-generator
 
     # Upload the archived outputs for Ubuntu and macOS
     - name: Upload Outputs (Ubuntu, MacOs)
