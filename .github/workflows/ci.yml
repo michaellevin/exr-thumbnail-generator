@@ -120,17 +120,24 @@ jobs:
     #    name: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
     #    path: EXR_thumbnail_generator-${{ runner.os }}.tar.gz
     
-    - name: Archive Outputs (Ubuntu, MacOs)
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-      run: |
-        zip -r EXR_thumbnail_generator-${{ runner.os }}.zip ${{github.workspace}}/build/exr-thumbnail-generator
+    #- name: Archive Outputs (Ubuntu, MacOs)
+    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+    #  run: |
+    #    zip -r EXR_thumbnail_generator-${{ runner.os }}.zip ${{github.workspace}}/build/exr-thumbnail-generator
+
+    #- name: Upload Outputs (Ubuntu, MacOs)
+    #  if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: EXR_thumbnail_generator-${{ runner.os }}.zip
+    #    path: EXR_thumbnail_generator-${{ runner.os }}.zip
 
     - name: Upload Outputs (Ubuntu, MacOs)
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       uses: actions/upload-artifact@v3
       with:
-        name: EXR_thumbnail_generator-${{ runner.os }}.zip
-        path: EXR_thumbnail_generator-${{ runner.os }}.zip
+        name: EXR_thumbnail_generator-${{ runner.os }}
+        path: ${{github.workspace}}/build/exr-thumbnail-generator
 
     # Archive the build outputs for Windows
     - name: Archive Outputs (Windows)
