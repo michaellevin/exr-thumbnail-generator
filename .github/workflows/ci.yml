@@ -198,17 +198,16 @@ jobs:
         echo "Current working directory > $(pwd)"
         for asset in $(pwd)/artifacts/*; do
           echo "asset > $asset"
-          if [[ -f "$asset" ]]; then
-            echo "Uploading asset $asset"
-            asset_name=$(basename $asset)
-            content_type=$(file --mime-type -b $asset)
-        
-            curl \
+          // if [[ -f "$asset" ]]; then
+          // echo "Uploading asset $asset"
+          asset_name=$(basename $asset)
+          content_type=$(file --mime-type -b $asset)        
+          curl \
               -H "Authorization: token $GITHUB_TOKEN" \
               -H "Content-Type: $content_type" \
               --data-binary "@$asset" \
               "${{ env.upload_url }}?name=$asset_name"
-          fi
+          // fi
         done
     
 
